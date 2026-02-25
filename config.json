@@ -1,0 +1,66 @@
+{
+  "feeds": [
+    {
+      "name": "Medium - Golang",
+      "url": "https://medium.com/feed/tag/golang"
+    },
+    {
+      "name": "Medium - Better Programming",
+      "url": "https://medium.com/feed/better-programming"
+    },
+    {
+      "name": "Medium - Towards Data Science",
+      "url": "https://medium.com/feed/towards-data-science"
+    },
+    {
+      "name": "Medium - Software Architecture",
+      "url": "https://medium.com/feed/tag/software-architecture"
+    },
+    {
+      "name": "Medium - Dave Cheney (Go)",
+      "url": "https://dave.cheney.net/feed"
+    },
+    {
+      "name": "Medium - Will Larson (Eng Management)",
+      "url": "https://lethain.com/feeds.xml"
+    },
+    {
+      "name": "Python Insider",
+      "url": "https://pythoninsider.blogspot.com/atom.xml"
+    },
+    {
+      "name": "LangChain Blog",
+      "url": "https://blog.langchain.dev/rss/"
+    },
+    {
+      "name": "Simon Willison's Weblog",
+      "url": "https://simonwillison.net/atom/entries/"
+    },
+    {
+      "name": "Latent Space (AI Engineering)",
+      "url": "https://www.latent.space/feed"
+    },
+    {
+      "name": "Microsoft Semantic Kernel",
+      "url": "https://devblogs.microsoft.com/semantic-kernel/feed/"
+    },
+    {
+      "name": "Hacker News (Top)",
+      "url": "https://news.ycombinator.com/rss"
+    }
+  ],
+  "keywords": [
+    "golang",
+    "python",
+    "machine learning",
+    "ai",
+    "agents",
+    "mcp",
+    "llm",
+    "generative ai",
+    "performance",
+    "concurrency",
+    "tutorial",
+    "best practices"
+  ]
+}
