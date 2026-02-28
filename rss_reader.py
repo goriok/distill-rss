@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import webbrowser
 from datetime import datetime
 
 import feedparser
@@ -10,18 +11,14 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-import webbrowser
 from rich.console import Console
-
-from rich.markdown import Markdown
 from rich.table import Table
 
 load_dotenv()
 
-# Initialize Rich Console
+# Rich console for better terminal output
 console = Console()
 
-# Disable SSL Warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -96,85 +93,82 @@ def fetch_feeds(config):
     return articles
 
 
-def generate_html_report(articles):
-
-    """
-    Generates a simple HTML report with the results.
-    """
-    html_content = """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>RSS Reader Report</title>
-        <style>
-            body { font-family: sans-serif; margin: 20px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-            tr:nth-child(even) { background-color: #f9f9f9; }
-            .score { font-weight: bold; text-align: center; }
-            .high-score { color: green; }
-            .medium-score { color: orange; }
-            .low-score { color: red; }
-            a { text-decoration: none; color: #007bff; }
-            a:hover { text-decoration: underline; }
-        </style>
-    </head>
-    <body>
-        <h1>Latest News Analysis</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Score</th>
-                    <th>Title</th>
-                    <th>Source</th>
-                    <th>Summary/Reason</th>
-                    <th>Link</th>
-                </tr>
-            </thead>
-            <tbody>
-    """
-    
-    for article in articles:
-        # Determine score class
-        score_val = 0
-        try:
-            score_val = int(article.get("score", 0))
-        except:
-            pass
-            
-        score_class = "low-score"
-        if score_val >= 7:
-            score_class = "high-score"
-        elif score_val >= 4:
-            score_class = "medium-score"
-
-        html_content += f"""
-            <tr>
-                <td class="score {score_class}">{article.get("score", "-")}</td>
-                <td>{article['title']}</td>
-                <td>{article['source']}</td>
-                <td>{article.get('reason', article['summary'][:200] + '...')}</td>
-                <td><a href="{article['link']}" target="_blank">Open</a></td>
-            </tr>
-        """
-        
-    html_content += """
-            </tbody>
-        </table>
-    </body>
-    </html>
-    """
-    
-    filename = "rss_report.html"
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write(html_content)
-        
-    return filename
-
-
+# def generate_html_report(articles):
+#    """
+#    Generates a simple HTML report with the results.
+#    """
+#    html_content = """
+#    <!DOCTYPE html>
+#    <html lang="en">
+#    <head>
+#        <meta charset="UTF-8">
+#        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+#        <title>RSS Reader Report</title>
+#        <style>
+#            body { font-family: sans-serif; margin: 20px; }
+#            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+#            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+#            th { background-color: #f2f2f2; }
+#            tr:nth-child(even) { background-color: #f9f9f9; }
+#            .score { font-weight: bold; text-align: center; }
+#            .high-score { color: green; }
+#            .medium-score { color: orange; }
+#            .low-score { color: red; }
+#            a { text-decoration: none; color: #007bff; }
+#            a:hover { text-decoration: underline; }
+#        </style>
+#    </head>
+#    <body>
+#        <h1>Latest News Analysis</h1>
+#        <table>
+#            <thead>
+#                <tr>
+#                    <th>Score</th>
+#                    <th>Title</th>
+#                    <th>Source</th>
+#                    <th>Summary/Reason</th>
+#                    <th>Link</th>
+#                </tr>
+#            </thead>
+#            <tbody>
+#    """
+#
+#    for article in articles:
+#        # Determine score class
+#        score_val = 0
+#        try:
+#            score_val = int(article.get("score", 0))
+#        except:
+#            pass
+#
+#        score_class = "low-score"
+#        if score_val >= 7:
+#            score_class = "high-score"
+#        elif score_val >= 4:
+#            score_class = "medium-score"
+#
+#        html_content += f"""
+#            <tr>
+#                <td class="score {score_class}">{article.get("score", "-")}</td>
+#                <td>{article["title"]}</td>
+#                <td>{article["source"]}</td>
+#                <td>{article.get("reason", article["summary"][:200] + "...")}</td>
+#                <td><a href="{article["link"]}" target="_blank">Open</a></td>
+#            </tr>
+#        """
+#
+#    html_content += """
+#            </tbody>
+#        </table>
+#    </body>
+#    </html>
+#    """
+#
+#    filename = "rss_report.html"
+#    with open(filename, "w", encoding="utf-8") as f:
+#        f.write(html_content)
+#
+#    return filename
 
 
 def generate_html_report(articles):
@@ -216,7 +210,7 @@ def generate_html_report(articles):
             </thead>
             <tbody>
     """
-    
+
     for article in articles:
         # Determine score class
         score_val = 0
@@ -224,54 +218,66 @@ def generate_html_report(articles):
             score_val = int(article.get("score", 0))
         except:
             pass
-            
+
         score_class = "low-score"
         if score_val >= 7:
             score_class = "high-score"
         elif score_val >= 4:
             score_class = "medium-score"
 
-        summary = article.get('reason', article['summary'][:200] + '...')
+        summary = article.get("reason", article["summary"][:200] + "...")
 
         html_content += f'''
             <tr>
                 <td class="score {score_class}">{article.get("score", "-")}</td>
-                <td>{article['title']}</td>
-                <td>{article['source']}</td>
+                <td>{article["title"]}</td>
+                <td>{article["source"]}</td>
                 <td>{summary}</td>
-                <td><a href="{article['link']}" target="_blank">Open</a></td>
+                <td><a href="{article["link"]}" target="_blank">Open</a></td>
             </tr>
         '''
-        
+
     html_content += """
             </tbody>
         </table>
     </body>
     </html>
     """
-    
+
     filename = "rss_report.html"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(html_content)
-        
+
     return filename
 
-def analyze_article_with_ai(client, article, keywords):
 
+def analyze_article_with_ai(client, article, keywords):
     """
     Uses Google Gemini to summarize and score relevance for a Golang/Python developer.
     """
     text_to_check = (article["title"] + " " + article["summary"]).lower()
     basic_keywords = [k.lower() for k in keywords]
 
-
     if not any(k in text_to_check for k in basic_keywords):
-        return {"score": 0, "reason": "Filtrado localmente (sem palavras-chave)", "tags": []}
+        return {
+            "score": 0,
+            "reason": "Filtrado localmente (sem palavras-chave)",
+            "tags": [],
+        }
 
     prompt = f"""
 
-    You are an AI assistant for a Senior Software Engineer specializing in Go (Golang) and Python.
+    You are an AI assistant for a Senior Software Engineer specializing in Golang and Python.
     Your task is to analyze the following article summary and determine if it is relevant to their interests.
+    
+    Key areas of interest include:
+    - Backend development (Go, Python)
+    - AI agents and LLM applications
+    - Model Context Protocol (MCP) for AI tooling
+    - Neovim (nvim) and development tools
+    - Software architecture and system design
+    - Performance optimization and concurrency
+    - Best practices and engineering insights
     
     Keywords of interest: {", ".join(keywords)}
     
@@ -293,7 +299,7 @@ def analyze_article_with_ai(client, article, keywords):
     }}
     """
 
-    model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+    model_name = os.getenv("GEMINI_MODEL", "gemini-3-flash-preview")
     try:
         response = client.models.generate_content(
             model=model_name,
@@ -302,8 +308,6 @@ def analyze_article_with_ai(client, article, keywords):
                 response_mime_type="application/json",
             ),
         )
-
-
 
         return json.loads(response.text)
 
@@ -348,7 +352,6 @@ def main():
     table.add_column("Link", style="blue")
 
     with console.status("[bold blue]Processing articles...") as status:
-
         for article in articles:
             score = "-"
             reason = article["summary"][:100] + "..."
@@ -361,7 +364,7 @@ def main():
 
                     score = str(analysis.get("score", 0))
                     reason = analysis.get("reason", "No reason provided")
-                    
+
                     # Store analysis in article for report
                     article["score"] = score
                     article["reason"] = reason
@@ -373,7 +376,7 @@ def main():
                     console.print(
                         "[yellow]Skipping AI analysis (Model not initialized)[/yellow]"
                     )
-            
+
             processed_articles.append(article)
             table.add_row(
                 score,
@@ -394,4 +397,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

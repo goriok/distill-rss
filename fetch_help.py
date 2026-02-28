@@ -12,7 +12,6 @@ try:
 
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, "html.parser")
-        # Extract the main article content
         article = soup.find("article")
         if article:
             print(article.get_text(separator="\n"))
