@@ -1,6 +1,26 @@
 {
   "feeds": [
     {
+      "name": "Anthropic Research",
+      "url": "https://www.anthropic.com/index.xml"
+    },
+    {
+      "name": "OpenAI Blog",
+      "url": "https://openai.com/blog/rss.xml"
+    },
+    {
+      "name": "Google DeepMind",
+      "url": "https://deepmind.google/blog/rss.xml"
+    },
+    {
+      "name": "LlamaIndex Blog",
+      "url": "https://www.llamaindex.ai/blog/rss.xml"
+    },
+    {
+      "name": "The Go Blog",
+      "url": "https://go.dev/blog/feed.atom"
+    },
+    {
       "name": "Medium - Golang",
       "url": "https://medium.com/feed/tag/golang"
     },
@@ -25,16 +45,72 @@
       "url": "https://lethain.com/feeds.xml"
     },
     {
+      "name": "Hugging Face Blog",
+      "url": "https://huggingface.co/blog/feed.xml"
+    },
+    {
+      "name": "Weaviate Vector Database",
+      "url": "https://weaviate.io/blog/rss.xml"
+    },
+    {
+      "name": "Pinecone Blog",
+      "url": "https://www.pinecone.io/learn/feed"
+    },
+    {
+      "name": "Qdrant Blog",
+      "url": "https://qdrant.tech/blog/index.xml"
+    },
+    {
       "name": "Python Insider",
       "url": "https://pythoninsider.blogspot.com/atom.xml"
+    },
+    {
+      "name": "Chip Huyen (AI Engineering)",
+      "url": "https://huyenchip.com/feed.xml"
+    },
+    {
+      "name": "Eugene Yan (Applied AI)",
+      "url": "https://eugeneyan.com/feed.xml"
+    },
+    {
+      "name": "Lil'Log (Lilian Weng)",
+      "url": "https://lilianweng.github.io/index.xml"
     },
     {
       "name": "LangChain Blog",
       "url": "https://blog.langchain.dev/rss/"
     },
     {
+      "name": "Dotfiles (Neovim)",
+      "url": "https://dotfiles.github.io/rss.xml"
+    },
+    {
+      "name": "Neovim News",
+      "url": "https://this-week-in-neovim.org/rss"
+    },
+    {
+      "name": "CodeCompanion GH Releases",
+      "url": "https://github.com/olimorris/codecompanion.nvim/releases.atom"
+    },
+    {
+      "name": "Copilot GH Blog",
+      "url": "https://github.blog/tag/github-copilot/feed/"
+    },
+    {
+      "name": "DeepSeek Blog",
+      "url": "https://www.deepseek.com/blog/rss"
+    },
+    {
       "name": "Simon Willison's Weblog",
       "url": "https://simonwillison.net/atom/entries/"
+    },
+    {
+      "name": "Arxiv - AI & ML",
+      "url": "http://export.arxiv.org/rss/cs.AI"
+    },
+    {
+      "name": "Arxiv - CL & LG",
+      "url": "http://export.arxiv.org/rss/cs.CL"
     },
     {
       "name": "Latent Space (AI Engineering)",
@@ -50,17 +126,23 @@
     }
   ],
   "keywords": [
-    "golang",
-    "python",
-    "machine learning",
-    "ai",
-    "agents",
+    "nvim",
+    "neovim",
+    "codecompanion",
+    "prompt engineering",
     "mcp",
+    "model context protocol",
+    "copilot",
+    "gemini",
+    "claude",
+    "deepseek",
     "llm",
-    "generative ai",
-    "performance",
-    "concurrency",
-    "tutorial",
-    "best practices"
+    "large language model",
+    "rag",
+    "knowledge base",
+    "python",
+    "golang",
+    "agent",
+    "agents"
   ]
 }
