@@ -136,6 +136,7 @@ class TestGeminiDigestGenerator:
 
     async def test_returns_digest_on_success(self, keywords):
         payload = json.dumps({
+            "brief": "Hoje: RAG e novidades de AI.",
             "main_themes": ["AI", "RAG"],
             "novelties": ["New LangChain version"],
             "top_picks": [{"title": "Best Article", "reason": "Top score"}],
@@ -149,6 +150,7 @@ class TestGeminiDigestGenerator:
         assert isinstance(result, Digest)
         assert result.main_themes == ["AI", "RAG"]
         assert result.summary == "Resumo do dia em pt-br."
+        assert result.brief == "Hoje: RAG e novidades de AI."
         assert result.top_picks[0].title == "Best Article"
 
     async def test_returns_none_on_api_exception(self, keywords):
@@ -162,7 +164,7 @@ class TestGeminiDigestGenerator:
 
     async def test_limits_to_top_25_articles(self, keywords):
         payload = json.dumps({
-            "main_themes": [], "novelties": [], "top_picks": [], "summary": ""
+            "brief": "", "main_themes": [], "novelties": [], "top_picks": [], "summary": ""
         })
         client = _make_gemini_client(payload)
         generator = self._make_generator(client)
@@ -182,6 +184,11 @@ class TestGeminiDigestGenerator:
         prompt = GeminiDigestGenerator._build_digest_prompt(articles, ["thought 1"])
         assert "Article 0" in prompt
         assert "Article 1" in prompt
+
+    def test_build_digest_prompt_requests_brief_field(self):
+        articles = _scored_articles([8])
+        prompt = GeminiDigestGenerator._build_digest_prompt(articles, [])
+        assert '"brief"' in prompt
 
     def test_build_thoughts_generates_four_steps(self):
         articles = _scored_articles([8])

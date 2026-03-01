@@ -100,6 +100,7 @@ class Digest:
     novelties: list[str] = field(default_factory=list)
     top_picks: list[TopPick] = field(default_factory=list)
     summary: str = ""
+    brief: str = ""
 
     def to_dict(self) -> dict:
         return {
@@ -107,6 +108,7 @@ class Digest:
             "novelties": self.novelties,
             "top_picks": [p.to_dict() for p in self.top_picks],
             "summary": self.summary,
+            "brief": self.brief,
         }
 
     @classmethod
@@ -116,4 +118,5 @@ class Digest:
             novelties=data.get("novelties", []),
             top_picks=[TopPick.from_dict(p) for p in data.get("top_picks", [])],
             summary=data.get("summary", ""),
+            brief=data.get("brief", ""),
         )

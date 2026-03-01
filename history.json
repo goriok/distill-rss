@@ -12,6 +12,7 @@
       "engineering patterns",
       "Claude"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:18:20.536489"
   },
   {
@@ -27,6 +28,7 @@
       "Model Context Protocol",
       "Claude"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:18:49.724785"
   },
   {
@@ -42,6 +44,7 @@
       "AI Engineering",
       "LLM"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:55:53.601420"
   },
   {
@@ -57,6 +60,7 @@
       "AI Agents",
       "Neovim"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:56:22.171388"
   },
   {
@@ -72,6 +76,7 @@
       "AI Agents",
       "LLM"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:56:33.231080"
   },
   {
@@ -87,6 +92,7 @@
       "AI architecture",
       "software engineering"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:56:37.736375"
   },
   {
@@ -102,6 +108,7 @@
       "observability",
       "LLM ops"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:17:55.436823"
   },
   {
@@ -117,6 +124,7 @@
       "System Design",
       "Python"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:17:59.354826"
   },
   {
@@ -132,6 +140,7 @@
       "observability",
       "LLM evaluation"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:18:03.016078"
   },
   {
@@ -147,6 +156,7 @@
       "LLM memory",
       "Python"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:18:07.026812"
   },
   {
@@ -162,6 +172,7 @@
       "Python",
       "Tooling"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:18:10.967156"
   },
   {
@@ -177,6 +188,7 @@
       "Python",
       "Software Architecture"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:18:41.723349"
   },
   {
@@ -192,6 +204,7 @@
       "GitHub Copilot",
       "MCP"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:18:54.058762"
   },
   {
@@ -207,6 +220,7 @@
       "OpenTelemetry",
       "Software Architecture"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:18:58.518244"
   },
   {
@@ -222,6 +236,7 @@
       "LLM",
       "AWS"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:54:45.202124"
   },
   {
@@ -237,6 +252,7 @@
       "Orchestration",
       "Stateful Runtime"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:54:48.745097"
   },
   {
@@ -252,6 +268,7 @@
       "LLM",
       "AI Agents"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:54:52.264428"
   },
   {
@@ -267,6 +284,7 @@
       "LLM",
       "Reasoning"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:54:59.944034"
   },
   {
@@ -282,6 +300,7 @@
       "System Design",
       "LLM Benchmarks"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:55:23.801821"
   },
   {
@@ -297,6 +316,7 @@
       "AI Agents",
       "Knowledge Base"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:55:26.685328"
   },
   {
@@ -312,6 +332,7 @@
       "RAG",
       "GitHub Copilot"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:55:30.556692"
   },
   {
@@ -327,6 +348,7 @@
       "Infrastructure",
       "Memory Management"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:55:34.143708"
   },
   {
@@ -342,6 +364,7 @@
       "RAG",
       "Vector Database"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:55:37.627454"
   },
   {
@@ -357,6 +380,7 @@
       "system design",
       "llm applications"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:55:50.101967"
   },
   {
@@ -372,6 +396,7 @@
       "System Design",
       "LLM Agents"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:55:57.793334"
   },
   {
@@ -387,6 +412,7 @@
       "LLM Ecosystem",
       "Open Source"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:56:05.889647"
   },
   {
@@ -402,6 +428,7 @@
       "AI Agents",
       "RAG"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:56:14.184759"
   },
   {
@@ -417,6 +444,7 @@
       "Neovim",
       "AI Tools"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:56:26.309437"
   },
   {
@@ -432,6 +460,7 @@
       "GitHub Copilot",
       "GitHub Actions"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:56:41.392064"
   },
   {
@@ -447,6 +476,7 @@
       "AI Agents",
       "Software Architecture"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:56:45.213273"
   },
   {
@@ -462,6 +492,7 @@
       "Software Architecture",
       "Agentic AI"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:57:03.132315"
   },
   {
@@ -477,6 +508,7 @@
       "backend",
       "release-notes"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:17:38.729552"
   },
   {
@@ -492,6 +524,7 @@
       "performance",
       "backend"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:17:42.639576"
   },
   {
@@ -507,6 +540,7 @@
       "AI development",
       "vibe coding"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:18:15.305208"
   },
   {
@@ -522,6 +556,7 @@
       "Python",
       "CLI tools"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:18:29.538914"
   },
   {
@@ -537,6 +572,7 @@
       "Local Models",
       "Software Architecture"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:18:46.087022"
   },
   {
@@ -552,6 +588,7 @@
       "Performance",
       "Memory Management"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:55:16.430234"
   },
   {
@@ -567,6 +604,7 @@
       "Vector Database",
       "Knowledge Base"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:55:42.132617"
   },
   {
@@ -582,6 +620,7 @@
       "AI Agents",
       "LLM Alignment"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:56:10.191171"
   },
   {
@@ -597,6 +636,7 @@
       "CLI",
       "AI Tooling"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:56:30.017910"
   },
   {
@@ -612,6 +652,7 @@
       "Knowledge Graph",
       "AI Agents"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:56:54.631822"
   },
   {
@@ -627,6 +668,7 @@
       "Autonomous Systems",
       "Tool Access"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:57:07.535985"
   },
   {
@@ -642,6 +684,7 @@
       "AWS Bedrock",
       "LLM"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:17:18.274190"
   },
   {
@@ -657,6 +700,7 @@
       "Claude Code",
       "Prompt Engineering"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:17:30.607705"
   },
   {
@@ -672,6 +716,7 @@
       "Backend",
       "Release"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:17:46.927230"
   },
   {
@@ -687,6 +732,7 @@
       "Backend",
       "Software Development"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:17:51.143062"
   },
   {
@@ -702,6 +748,7 @@
       "Engineering Insights",
       "Software Development"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:18:33.735450"
   },
   {
@@ -717,6 +764,7 @@
       "RAG",
       "AI Infrastructure"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:55:46.741722"
   },
   {
@@ -732,6 +780,7 @@
       "RLHF",
       "Data Quality"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:56:18.383856"
   },
   {
@@ -747,6 +796,7 @@
       "llm",
       "rag"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:57:18.695812"
   },
   {
@@ -762,6 +812,7 @@
       "Prompt Engineering",
       "AI Agents"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:57:28.116334"
   },
   {
@@ -777,6 +828,7 @@
       "Security",
       "Governance"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:17:34.061728"
   },
   {
@@ -792,6 +844,7 @@
       "Knowledge Distillation",
       "NLP"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:57:12.449570"
   },
   {
@@ -807,6 +860,7 @@
       "Image Generation",
       "AI Models"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:18:37.989380"
   },
   {
@@ -822,6 +876,7 @@
       "Benchmark",
       "AI Evaluation"
     ],
+    "run_date": "",
     "analyzed_at": "2026-02-28T17:56:59.040158"
   }
 ]

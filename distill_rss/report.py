@@ -39,8 +39,10 @@ def _render_digest(digest: Digest | None) -> str:
         f"<li><strong>{p.title}</strong> — {p.reason}</li>"
         for p in digest.top_picks
     )
-    summary = digest.summary
 
+    brief_block = (
+        f'<div class="brief">{digest.brief}</div>' if digest.brief else ""
+    )
     novelties_block = (
         f"<div><strong>Novidades:</strong><ul>{novelties}</ul></div>" if novelties else ""
     )
@@ -48,11 +50,14 @@ def _render_digest(digest: Digest | None) -> str:
         f"<div><strong>Top Picks:</strong><ul>{picks}</ul></div>" if picks else ""
     )
     summary_block = (
-        f"<div class='summary'><strong>Resumo:</strong> {summary}</div>" if summary else ""
+        f"<div class='summary'><strong>Resumo:</strong> {digest.summary}</div>"
+        if digest.summary
+        else ""
     )
 
     return (
         f'<div class="digest-box">'
+        f"{brief_block}"
         f"<div><strong>Temas:</strong> {themes}</div>"
         f"{novelties_block}"
         f"{picks_block}"
@@ -82,6 +87,7 @@ _CSS = """
     .digest-box>div{margin-bottom:8px}
     .digest-box ul{padding-left:18px}
     .digest-box li{margin-bottom:4px}
+    .digest-box .brief{font-size:13px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px}
     .digest-box .summary{color:var(--muted);font-style:italic}
     .tag{background:#2a2d3a;border-radius:3px;padding:1px 6px;font-size:11px;margin-left:4px;color:var(--muted)}
     table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:8px;overflow:hidden;border:1px solid var(--border)}

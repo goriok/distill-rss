@@ -76,6 +76,19 @@ class TestRenderDigest:
         html = _render_digest(d)
         assert "Um excelente resumo em pt-br" in html
 
+    def test_renders_brief_at_top_of_digest_box(self):
+        d = Digest(main_themes=["AI"], novelties=[], top_picks=[], summary="", brief="Hoje: AI e RAG.")
+        html = _render_digest(d)
+        assert "Hoje: AI e RAG." in html
+        assert 'class="brief"' in html
+        # brief block must appear before themes block
+        assert html.index("brief") < html.index("Temas")
+
+    def test_no_brief_block_when_empty(self):
+        d = Digest(main_themes=["AI"], novelties=[], top_picks=[], summary="", brief="")
+        html = _render_digest(d)
+        assert 'class="brief"' not in html
+
     def test_digest_box_css_class_present(self):
         d = Digest(main_themes=["AI"], novelties=[], top_picks=[], summary="")
         assert 'class="digest-box"' in _render_digest(d)

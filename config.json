@@ -2,7 +2,7 @@
   "feeds": [
     {
       "name": "Anthropic Research",
-      "url": "https://www.anthropic.com/index.xml"
+      "url": "https://raw.githubusercontent.com/taobojlen/anthropic-rss-feed/main/anthropic_news_rss.xml"
     },
     {
       "name": "OpenAI Blog",
@@ -14,7 +14,7 @@
     },
     {
       "name": "LlamaIndex Blog",
-      "url": "https://www.llamaindex.ai/blog/rss.xml"
+      "url": "https://medium.com/feed/llamaindex-blog"
     },
     {
       "name": "The Go Blog",
@@ -53,10 +53,6 @@
       "url": "https://weaviate.io/blog/rss.xml"
     },
     {
-      "name": "Pinecone Blog",
-      "url": "https://www.pinecone.io/learn/feed"
-    },
-    {
       "name": "Qdrant Blog",
       "url": "https://qdrant.tech/blog/index.xml"
     },
@@ -70,7 +66,7 @@
     },
     {
       "name": "Eugene Yan (Applied AI)",
-      "url": "https://eugeneyan.com/feed.xml"
+      "url": "https://eugeneyan.com/rss/"
     },
     {
       "name": "Lil'Log (Lilian Weng)",
@@ -81,12 +77,12 @@
       "url": "https://blog.langchain.dev/rss/"
     },
     {
-      "name": "Dotfiles (Neovim)",
-      "url": "https://dotfiles.github.io/rss.xml"
+      "name": "Dotfyle - New Neovim Plugins",
+      "url": "https://dotfyle.com/neovim/plugins/rss.xml"
     },
     {
       "name": "Neovim News",
-      "url": "https://this-week-in-neovim.org/rss"
+      "url": "https://dotfyle.com/this-week-in-neovim/rss.xml"
     },
     {
       "name": "CodeCompanion GH Releases",
@@ -95,10 +91,6 @@
     {
       "name": "Copilot GH Blog",
       "url": "https://github.blog/tag/github-copilot/feed/"
-    },
-    {
-      "name": "DeepSeek Blog",
-      "url": "https://www.deepseek.com/blog/rss"
     },
     {
       "name": "Simon Willison's Weblog",

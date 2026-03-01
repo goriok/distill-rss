@@ -107,18 +107,21 @@ class TestDigestSerialization:
             novelties=["GPT-5 released"],
             top_picks=[TopPick(title="T", reason="R")],
             summary="Um resumo em pt-br",
+            brief="Hoje: AI e LLMs.",
         )
         restored = Digest.from_dict(d.to_dict())
         assert restored.main_themes == ["AI", "LLMs"]
         assert restored.novelties == ["GPT-5 released"]
         assert restored.top_picks[0].title == "T"
         assert restored.summary == "Um resumo em pt-br"
+        assert restored.brief == "Hoje: AI e LLMs."
 
     def test_from_dict_empty_digest(self):
         d = Digest.from_dict({})
         assert d.main_themes == []
         assert d.top_picks == []
         assert d.summary == ""
+        assert d.brief == ""
 
 
 class TestAppConfig:

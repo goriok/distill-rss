@@ -61,6 +61,7 @@ def sample_digest() -> Digest:
         novelties=["New LangChain version"],
         top_picks=[TopPick(title="Best Article", reason="Top score")],
         summary="Resumo do dia em pt-br.",
+        brief="Hoje abordamos RAG e novidades de AI.",
     )
 
 

@@ -173,6 +173,7 @@ class GeminiDigestGenerator:
             f"Articles (sorted by relevance score):\n{article_lines}\n\n"
             "Output ONLY valid JSON:\n"
             "{\n"
+            '  "brief": "<1-2 sentences in pt-br listing the main topics covered today>",\n'
             '  "main_themes": ["<theme>"],\n'
             '  "novelties": ["<novelty>"],\n'
             '  "top_picks": [{"title": "<t>", "reason": "<r>"}],\n'
