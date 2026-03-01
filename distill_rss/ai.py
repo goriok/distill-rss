@@ -16,26 +16,30 @@ from google import genai
 from google.genai import types
 
 from .constants import MAX_DIGEST_ARTICLES, SUMMARY_TRUNCATE
-from .models import Article, Digest
 from .mcp_tools import (
     LibraryContextProvider,
     NullContextProvider,
 )
+from .models import Article, Digest
 
 logger = logging.getLogger(__name__)
 
 
 # ── Protocols ─────────────────────────────────────────────────────────────────
 
+
 class ArticleAnalyzer(Protocol):
     async def analyze(self, article: Article, keywords: list[str]) -> dict: ...
 
 
 class DigestGenerator(Protocol):
-    async def generate(self, articles: list[Article], keywords: list[str]) -> Digest | None: ...
+    async def generate(
+        self, articles: list[Article], keywords: list[str]
+    ) -> Digest | None: ...
 
 
 # ── Gemini implementations ────────────────────────────────────────────────────
+
 
 class GeminiArticleAnalyzer:
     """
@@ -55,11 +59,17 @@ class GeminiArticleAnalyzer:
     ):
         self._client = client
         self._model = model
-        self._context_provider: LibraryContextProvider = context_provider or NullContextProvider()
+        self._context_provider: LibraryContextProvider = (
+            context_provider or NullContextProvider()
+        )
 
     async def analyze(self, article: Article, keywords: list[str]) -> dict:
         if not self._matches_keywords(article, keywords):
-            return {"score": 0, "reason": "Filtrado localmente (sem palavras-chave)", "tags": []}
+            return {
+                "score": 0,
+                "reason": "Filtrado localmente (sem palavras-chave)",
+                "tags": [],
+            }
 
         library_context = await self._context_provider.get_context(
             f"{article.title} {article.summary}"
@@ -70,7 +80,9 @@ class GeminiArticleAnalyzer:
             response = await self._client.aio.models.generate_content(
                 model=self._model,
                 contents=prompt,
-                config=types.GenerateContentConfig(response_mime_type="application/json"),
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json"
+                ),
             )
             return json.loads(response.text)
         except Exception as exc:
@@ -84,17 +96,24 @@ class GeminiArticleAnalyzer:
         context: str = "",
     ) -> str:
         ctx_block = (
-            f"\n\nContext from context7 (current docs):\n{context}" if context else ""
+            f"\n\nContexto da biblioteca local (context7):\n{context}"
+            if context
+            else ""
         )
         return (
-            "You are a curator for a Senior Software Engineer (Go/Python, AI Agents, Neovim/CodeCompanion).\n\n"
-            "Analyze the article below and respond with ONLY valid JSON.\n\n"
-            f"Keywords of interest: {', '.join(keywords)}"
+            "Você é o 'Agente da Práxis', curador técnico focado em uma única Diretiva Mestra: "
+            "'Quantas horas de trabalho mecânico este conceito me ajuda a delegar para a máquina hoje?'\n\n"
+            "Avalie o artigo abaixo. Ignore hypes e abstrações vazias. Foque em pragmatismo, "
+            "implementação real (Go, Python, AI Agents) e eficiência no ecossistema de terminal (Neovim).\n\n"
+            f"Palavras-chave de interesse: {', '.join(keywords)}"
             f"{ctx_block}\n\n"
-            f"Article title: {article.title}\n"
-            f"Article source: {article.source}\n"
-            f"Article summary (truncated): {article.summary[:SUMMARY_TRUNCATE]}\n\n"
-            "Score (0-10), one-sentence reason (pt-br), up to 3 tags.\n\n"
+            f"Título: {article.title}\n"
+            f"Fonte: {article.source}\n"
+            f"Resumo: {article.summary[:SUMMARY_TRUNCATE]}\n\n"
+            "Responda APENAS com JSON válido. Regras para os campos:\n"
+            "- 'score' (0-10): Dê 0 para 'armadilhas de produtividade' (tecnologias que geram mais complexidade e manutenção do que tempo livre). Dê 10 para 'Sinal Puro' (automação pragmática que emancipa o tempo).\n"
+            "- 'reason': Uma única frase (pt-br) explicando estritamente como isso automatiza trabalho OU por que é uma armadilha burocrática.\n"
+            "- 'tags': Até 3 tags focadas na aplicação (ex: 'python', 'rag-automação', 'armadilha-hype').\n\n"
             '{"score": <int>, "reason": "<string>", "tags": ["<t1>", "<t2>"]}'
         )
 
@@ -116,18 +135,24 @@ class GeminiDigestGenerator:
         self._client = client
         self._model = model
 
-    async def generate(self, articles: list[Article], keywords: list[str]) -> Digest | None:
+    async def generate(
+        self, articles: list[Article], keywords: list[str]
+    ) -> Digest | None:
         if not articles:
             return None
 
-        top = sorted(articles, key=lambda a: a.score, reverse=True)[:MAX_DIGEST_ARTICLES]
+        top = sorted(articles, key=lambda a: a.score, reverse=True)[
+            :MAX_DIGEST_ARTICLES
+        ]
         prompt = self._build_digest_prompt(top)
 
         try:
             response = await self._client.aio.models.generate_content(
                 model=self._model,
                 contents=prompt,
-                config=types.GenerateContentConfig(response_mime_type="application/json"),
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json"
+                ),
             )
             return Digest.from_dict(json.loads(response.text))
         except Exception as exc:
@@ -141,14 +166,15 @@ class GeminiDigestGenerator:
             for a in top
         )
         return (
-            "You are a Senior Software Engineer curator. Summarize today's RSS batch.\n\n"
-            f"Articles (sorted by relevance score):\n{article_lines}\n\n"
-            "Output ONLY valid JSON:\n"
+            "Você é o 'Agente da Práxis'. Sintetize os artigos de alto ROI lidos hoje, focando exclusivamente "
+            "na emancipação do tempo e no uso da tecnologia como meio de produção para um Eng. Sênior.\n\n"
+            f"Artigos Filtrados:\n{article_lines}\n\n"
+            "Responda APENAS com JSON válido. Instruções de conteúdo (em pt-br):\n"
             "{\n"
-            '  "brief": "<1-2 sentences in pt-br listing the main topics covered today>",\n'
-            '  "main_themes": ["<theme>"],\n'
-            '  "novelties": ["<novelty>"],\n'
-            '  "top_picks": [{"title": "<t>", "reason": "<r>"}],\n'
-            '  "summary": "<paragraph in pt-br>"\n'
+            '  "brief": "<1-2 frases resumindo o ganho real de tempo/automação que a leitura de hoje proporciona>",\n'
+            '  "main_themes": ["<Conceitos pragmáticos extraídos do lote>"],\n'
+            '  "novelties": ["<Ideias diretas de implementação em Go/Python/Terminal derivadas dos artigos>"],\n'
+            '  "top_picks": [{"title": "<t>", "reason": "<Motivo focado na remoção de servidão sistêmica>"}],\n'
+            '  "summary": "<Um parágrafo de análise crítica. Aponte como as ferramentas de hoje servem à Vita Contemplativa. Se houver ruído/hype misturado no lote, denuncie-o aqui.>"\n'
             "}"
         )
