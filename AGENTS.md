@@ -118,3 +118,16 @@ The `rss_report.html` is organized into **day sections**, one per execution run:
 | `digests.json` | Daily batch summaries keyed by `YYYY-MM-DD` |
 | `rss_report.html` | Generated HTML report, paginated by day |
 | `config.json` | Feed URLs and keyword list |
+
+---
+
+## Development Workflow
+
+**Always run unit tests before considering any code change complete:**
+
+```bash
+uv run pytest
+```
+
+- All tests must pass before committing.
+- If you add or modify behavior, update or add the corresponding test in `tests/`.
