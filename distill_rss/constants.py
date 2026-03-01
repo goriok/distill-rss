@@ -37,12 +37,6 @@ CONTEXT7_TOKENS: Final[int] = 800
 SEQUENTIAL_THOUGHTS: Final[int] = 4
 """Number of structured reasoning steps sent to sequential-thinking."""
 
-MAX_ANALYSIS_OUTPUT_TOKENS: Final[int] = 200
-"""Maximum output tokens for a single article analysis call (score/reason/tags JSON)."""
-
-MAX_DIGEST_OUTPUT_TOKENS: Final[int] = 600
-"""Maximum output tokens for the daily digest generation call."""
-
 # ── AI defaults ────────────────────────────────────────────────────────────────
 
 DEFAULT_GEMINI_MODEL: Final[str] = "gemini-3-flash-preview"

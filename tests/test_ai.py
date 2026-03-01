@@ -4,7 +4,6 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from distill_rss.ai import GeminiArticleAnalyzer, GeminiDigestGenerator
-from distill_rss.constants import MAX_ANALYSIS_OUTPUT_TOKENS, MAX_DIGEST_OUTPUT_TOKENS
 from distill_rss.models import Article, Digest
 from distill_rss.mcp_tools import NullContextProvider, NullThinkingRecorder
 
@@ -119,16 +118,6 @@ class TestGeminiArticleAnalyzer:
         prompt = GeminiArticleAnalyzer._build_analysis_prompt(article, ["rag"])
         assert "context7" not in prompt
 
-    async def test_generate_content_called_with_max_output_tokens(self):
-        payload = json.dumps({"score": 8, "reason": "Relevante", "tags": ["rag"]})
-        client = _make_gemini_client(payload)
-        analyzer = self._make_analyzer(client)
-
-        await analyzer.analyze(_make_article(), _KEYWORDS)
-
-        config = client.aio.models.generate_content.call_args.kwargs["config"]
-        assert config.max_output_tokens == MAX_ANALYSIS_OUTPUT_TOKENS
-
 
 # ── GeminiDigestGenerator ──────────────────────────────────────────────────────
 
@@ -206,15 +195,3 @@ class TestGeminiDigestGenerator:
         thoughts = GeminiDigestGenerator._build_thoughts(articles, ["rag", "python"])
         assert len(thoughts) == 4
         assert all(isinstance(t, str) for t in thoughts)
-
-    async def test_generate_content_called_with_max_output_tokens(self, keywords):
-        payload = json.dumps({
-            "brief": "Hoje: RAG.", "main_themes": [], "novelties": [], "top_picks": [], "summary": ""
-        })
-        client = _make_gemini_client(payload)
-        generator = self._make_generator(client)
-
-        await generator.generate(_scored_articles([8]), keywords)
-
-        config = client.aio.models.generate_content.call_args.kwargs["config"]
-        assert config.max_output_tokens == MAX_DIGEST_OUTPUT_TOKENS

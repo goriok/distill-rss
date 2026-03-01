@@ -16,7 +16,7 @@ from typing import Protocol
 from google import genai
 from google.genai import types
 
-from .constants import MAX_ANALYSIS_OUTPUT_TOKENS, MAX_DIGEST_ARTICLES, MAX_DIGEST_OUTPUT_TOKENS, SUMMARY_TRUNCATE
+from .constants import MAX_DIGEST_ARTICLES, SUMMARY_TRUNCATE
 from .models import Article, Digest
 from .mcp_tools import (
     LibraryContextProvider,
@@ -73,17 +73,7 @@ class GeminiArticleAnalyzer:
             response = await self._client.aio.models.generate_content(
                 model=self._model,
                 contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    max_output_tokens=MAX_ANALYSIS_OUTPUT_TOKENS,
-                ),
-            )
-            meta = response.usage_metadata
-            logger.info(
-                "tokens used (analysis) — prompt=%s output=%s total=%s",
-                meta.prompt_token_count,
-                meta.candidates_token_count,
-                meta.total_token_count,
+                config=types.GenerateContentConfig(response_mime_type="application/json"),
             )
             return json.loads(response.text)
         except Exception as exc:
@@ -149,17 +139,7 @@ class GeminiDigestGenerator:
             response = await self._client.aio.models.generate_content(
                 model=self._model,
                 contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    max_output_tokens=MAX_DIGEST_OUTPUT_TOKENS,
-                ),
-            )
-            meta = response.usage_metadata
-            logger.info(
-                "tokens used (digest) — prompt=%s output=%s total=%s",
-                meta.prompt_token_count,
-                meta.candidates_token_count,
-                meta.total_token_count,
+                config=types.GenerateContentConfig(response_mime_type="application/json"),
             )
             return Digest.from_dict(json.loads(response.text))
         except Exception as exc:
