@@ -24,7 +24,7 @@ from rich.table import Table
 from distill_rss.ai import GeminiArticleAnalyzer, GeminiDigestGenerator
 from distill_rss.constants import DEFAULT_GEMINI_MODEL, MIN_ACCEPTED_SCORE
 from distill_rss.fetcher import FeedFetcher
-from distill_rss.mcp_tools import Context7Client, SequentialThinkingClient
+from distill_rss.mcp_tools import Context7Client
 from distill_rss.models import Article, Digest
 from distill_rss.persistence import ConfigLoader, JsonArticleRepository, JsonDigestRepository
 from distill_rss.report import HTMLReportGenerator
@@ -37,10 +37,9 @@ MCP_CONTEXT7 = StdioServerParameters(
     command="npx",
     args=["-y", "@upstash/context7-mcp@latest"],
 )
-MCP_SEQUENTIAL_THINKING = StdioServerParameters(
-    command="npx",
-    args=["-y", "@modelcontextprotocol/server-sequential-thinking"],
-)
+
+
+_ANALYZE_CONCURRENCY = 8  # max parallel Gemini calls; tune down if rate-limited
 
 
 async def _analyze_articles(
@@ -50,20 +49,23 @@ async def _analyze_articles(
     keywords: list[str],
     run_date: str,
 ) -> list[Article]:
-    """Run AI analysis over new articles, returning only accepted ones (score >= threshold)."""
-    accepted: list[Article] = []
-    for article in articles:
+    """Run AI analysis over new articles concurrently, returning only accepted ones (score >= threshold)."""
+    semaphore = asyncio.Semaphore(_ANALYZE_CONCURRENCY)
+
+    async def _process(article: Article) -> Article | None:
         if article.link in history_links:
-            continue
-        article.run_date = run_date
-        result = await analyzer.analyze(article, keywords)
+            return None
+        async with semaphore:
+            article.run_date = run_date
+            result = await analyzer.analyze(article, keywords)
         article.score = int(result.get("score", 0))
         article.reason = result.get("reason", "")
         article.tags = result.get("tags", [])
         article.analyzed_at = datetime.now().isoformat()
-        if article.score >= MIN_ACCEPTED_SCORE:
-            accepted.append(article)
-    return accepted
+        return article if article.score >= MIN_ACCEPTED_SCORE else None
+
+    results = await asyncio.gather(*(_process(a) for a in articles))
+    return [a for a in results if a is not None]
 
 
 def _display_digest_summary(digest: Digest, run_date: str) -> None:
@@ -110,38 +112,30 @@ async def main() -> None:
     run_date = datetime.now().strftime("%Y-%m-%d")
     history_links = {a.link for a in history}
 
-    # We own both MCP subprocesses below.
-    # context7 and sequential-thinking are spawned here and closed on exit.
-    # These are completely independent from any CodeCompanion-spawned instances.
+    # We own the context7 MCP subprocess below.
+    # It is completely independent from any CodeCompanion-spawned instances.
     async with stdio_client(MCP_CONTEXT7) as (ctx7_r, ctx7_w):
         async with ClientSession(ctx7_r, ctx7_w) as ctx7:
             await ctx7.initialize()
-            console.print("[dim]MCP context7 ready[/dim]")
+            console.print("[dim]MCP context7 ready[/dim]\n")
 
-            async with stdio_client(MCP_SEQUENTIAL_THINKING) as (seq_r, seq_w):
-                async with ClientSession(seq_r, seq_w) as seq:
-                    await seq.initialize()
-                    console.print("[dim]MCP sequential-thinking ready[/dim]\n")
+            analyzer = GeminiArticleAnalyzer(
+                gemini_client, model_name, Context7Client(ctx7)
+            )
+            digest_gen = GeminiDigestGenerator(gemini_client, model_name)
 
-                    analyzer = GeminiArticleAnalyzer(
-                        gemini_client, model_name, Context7Client(ctx7)
-                    )
-                    digest_gen = GeminiDigestGenerator(
-                        gemini_client, model_name, SequentialThinkingClient(seq)
-                    )
+            with console.status("[bold blue]Analyzing articles..."):
+                new_articles = await _analyze_articles(
+                    analyzer, articles, history_links, config.keywords, run_date
+                )
 
-                    with console.status("[bold blue]Analyzing articles..."):
-                        new_articles = await _analyze_articles(
-                            analyzer, articles, history_links, config.keywords, run_date
-                        )
-
-                    if new_articles:
-                        console.print("\n[bold blue]Generating daily digest...[/bold blue]")
-                        digest = await digest_gen.generate(new_articles, config.keywords)
-                        if digest:
-                            digests[run_date] = digest
-                            digest_repo.save(digests)
-                            _display_digest_summary(digest, run_date)
+            if new_articles:
+                console.print("\n[bold blue]Generating daily digest...[/bold blue]")
+                digest = await digest_gen.generate(new_articles, config.keywords)
+                if digest:
+                    digests[run_date] = digest
+                    digest_repo.save(digests)
+                    _display_digest_summary(digest, run_date)
 
     history.extend(new_articles)
     history.sort(key=lambda a: a.score, reverse=True)

@@ -5,7 +5,7 @@ import pytest
 
 from distill_rss.ai import GeminiArticleAnalyzer, GeminiDigestGenerator
 from distill_rss.models import Article, Digest
-from distill_rss.mcp_tools import NullContextProvider, NullThinkingRecorder
+from distill_rss.mcp_tools import NullContextProvider
 
 
 # ── Local helpers (complement conftest fixtures) ───────────────────────────────
@@ -123,7 +123,7 @@ class TestGeminiArticleAnalyzer:
 
 class TestGeminiDigestGenerator:
     def _make_generator(self, client) -> GeminiDigestGenerator:
-        return GeminiDigestGenerator(client, "gemini-2.0-flash", NullThinkingRecorder())
+        return GeminiDigestGenerator(client, "gemini-2.0-flash")
 
     async def test_returns_none_for_empty_articles(self, keywords):
         client = MagicMock()
@@ -181,17 +181,11 @@ class TestGeminiDigestGenerator:
 
     def test_build_digest_prompt_includes_article_entries(self):
         articles = _scored_articles([8, 6])
-        prompt = GeminiDigestGenerator._build_digest_prompt(articles, ["thought 1"])
+        prompt = GeminiDigestGenerator._build_digest_prompt(articles)
         assert "Article 0" in prompt
         assert "Article 1" in prompt
 
     def test_build_digest_prompt_requests_brief_field(self):
         articles = _scored_articles([8])
-        prompt = GeminiDigestGenerator._build_digest_prompt(articles, [])
+        prompt = GeminiDigestGenerator._build_digest_prompt(articles)
         assert '"brief"' in prompt
-
-    def test_build_thoughts_generates_four_steps(self):
-        articles = _scored_articles([8])
-        thoughts = GeminiDigestGenerator._build_thoughts(articles, ["rag", "python"])
-        assert len(thoughts) == 4
-        assert all(isinstance(t, str) for t in thoughts)

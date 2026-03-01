@@ -1,9 +1,8 @@
 """
 AI analysis layer — Dependency Inversion in practice.
 
-GeminiArticleAnalyzer and GeminiDigestGenerator depend on:
+GeminiArticleAnalyzer depends on:
 - LibraryContextProvider (Protocol) — not the concrete Context7Client
-- ThinkingRecorder (Protocol) — not the concrete SequentialThinkingClient
 
 This allows unit tests to inject Null Objects and avoids tight coupling to
 external services. Callers inject the real implementations at runtime.
@@ -21,8 +20,6 @@ from .models import Article, Digest
 from .mcp_tools import (
     LibraryContextProvider,
     NullContextProvider,
-    NullThinkingRecorder,
-    ThinkingRecorder,
 )
 
 logger = logging.getLogger(__name__)
@@ -112,28 +109,19 @@ class GeminiDigestGenerator:
     Produces a daily digest from the batch of accepted articles.
 
     Pipeline:
-      1. sequential-thinking: records 4 structured reasoning steps (optional, injected).
-      2. Gemini call → Digest { main_themes, novelties, top_picks, summary }.
+      1. Gemini call → Digest { brief, main_themes, novelties, top_picks, summary }.
     """
 
-    def __init__(
-        self,
-        client: genai.Client,
-        model: str,
-        thinking_recorder: ThinkingRecorder | None = None,
-    ):
+    def __init__(self, client: genai.Client, model: str):
         self._client = client
         self._model = model
-        self._thinking_recorder: ThinkingRecorder = thinking_recorder or NullThinkingRecorder()
 
     async def generate(self, articles: list[Article], keywords: list[str]) -> Digest | None:
         if not articles:
             return None
 
         top = sorted(articles, key=lambda a: a.score, reverse=True)[:MAX_DIGEST_ARTICLES]
-        thoughts = self._build_thoughts(top, keywords)
-        thought_log = await self._thinking_recorder.record(thoughts)
-        prompt = self._build_digest_prompt(top, thought_log)
+        prompt = self._build_digest_prompt(top)
 
         try:
             response = await self._client.aio.models.generate_content(
@@ -147,29 +135,13 @@ class GeminiDigestGenerator:
             return None
 
     @staticmethod
-    def _build_thoughts(top: list[Article], keywords: list[str]) -> list[str]:
-        return [
-            f"Step 1 – Theme extraction: scanning {len(top)} articles for dominant topics "
-            f"related to {', '.join(keywords[:6])}.",
-            "Step 2 – Novelty detection: identifying new releases, model updates, and emerging patterns.",
-            "Step 3 – Top picks: selecting the 3-5 highest-scoring articles with the broadest relevance.",
-            "Step 4 – Executive summary: drafting a pt-br paragraph for a Senior Go/Python/AI Engineer.",
-        ]
-
-    @staticmethod
-    def _build_digest_prompt(top: list[Article], thought_log: list[str]) -> str:
+    def _build_digest_prompt(top: list[Article]) -> str:
         article_lines = "\n".join(
             f"- [{a.score}/10] {a.title} ({a.source}): {a.reason or a.summary[:80]}"
             for a in top
         )
-        thought_context = (
-            "\n\nReasoning steps (sequential-thinking):\n" + "\n".join(thought_log)
-            if thought_log
-            else ""
-        )
         return (
-            f"You are a Senior Software Engineer curator. Summarize today's RSS batch."
-            f"{thought_context}\n\n"
+            "You are a Senior Software Engineer curator. Summarize today's RSS batch.\n\n"
             f"Articles (sorted by relevance score):\n{article_lines}\n\n"
             "Output ONLY valid JSON:\n"
             "{\n"

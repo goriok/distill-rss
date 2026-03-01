@@ -2,10 +2,10 @@
 MCP tool wrappers with explicit Protocols and Null Objects.
 
 Design decisions:
-- LibraryContextProvider / ThinkingRecorder are Protocols (structural typing).
-  Concrete classes don't need to inherit from them; duck typing + mypy cover it.
-- Null Object pattern: NullContextProvider / NullThinkingRecorder let callers
-  skip the MCP wiring entirely without if-guards at every call site.
+- LibraryContextProvider is a Protocol (structural typing).
+  Concrete classes don't need to inherit from it; duck typing + mypy cover it.
+- Null Object pattern: NullContextProvider lets callers skip the MCP wiring
+  entirely without if-guards at every call site.
 - Each class manages exactly ONE concern (ISP / SRP).
 
 Important: these sessions are spawned BY us (stdio subprocesses). We never
@@ -40,11 +40,6 @@ class LibraryContextProvider(Protocol):
     async def get_context(self, text: str) -> str: ...
 
 
-@runtime_checkable
-class ThinkingRecorder(Protocol):
-    async def record(self, thoughts: list[str]) -> list[str]: ...
-
-
 # ── Null Objects ──────────────────────────────────────────────────────────────
 
 class NullContextProvider:
@@ -54,35 +49,35 @@ class NullContextProvider:
         return ""
 
 
-class NullThinkingRecorder:
-    """Used when sequential-thinking MCP is unavailable."""
-
-    async def record(self, thoughts: list[str]) -> list[str]:
-        return thoughts
-
-
 # ── Real implementations ──────────────────────────────────────────────────────
 
 class Context7Client:
     """
     Resolves library names → context7 IDs → fetches current doc snippets.
     Enriches AI prompts with up-to-date library documentation.
+
+    Results are cached per library for the lifetime of the client, so multiple
+    articles mentioning the same library share a single MCP roundtrip.
     """
 
     def __init__(self, session: ClientSession):
         self._session = session
+        self._cache: dict[str, str] = {}  # lib → snippet ("" means no result / failed)
 
     async def get_context(self, text: str) -> str:
         text_lower = text.lower()
         for lib in TRACKABLE_LIBRARIES:
             if lib not in text_lower:
                 continue
-            try:
-                snippet = await self._fetch_snippet(lib)
-                if snippet:
-                    return f"[context7 – {lib} docs]: {snippet}"
-            except Exception as exc:
-                logger.debug("context7 lookup failed for %s: %s", lib, exc)
+            if lib not in self._cache:
+                try:
+                    self._cache[lib] = await self._fetch_snippet(lib)
+                except Exception as exc:
+                    logger.debug("context7 lookup failed for %s: %s", lib, exc)
+                    self._cache[lib] = ""
+            snippet = self._cache[lib]
+            if snippet:
+                return f"[context7 – {lib} docs]: {snippet}"
         return ""
 
     async def _fetch_snippet(self, lib: str) -> str:
@@ -110,31 +105,3 @@ class Context7Client:
         return docs.content[0].text[:SNIPPET_TRUNCATE] if docs.content else ""
 
 
-class SequentialThinkingClient:
-    """
-    Records structured reasoning steps via the sequential-thinking MCP server.
-    Returns the server's enriched responses for digest prompt injection.
-    """
-
-    def __init__(self, session: ClientSession):
-        self._session = session
-
-    async def record(self, thoughts: list[str]) -> list[str]:
-        results: list[str] = []
-        total = len(thoughts)
-        for i, thought in enumerate(thoughts, 1):
-            try:
-                result = await self._session.call_tool(
-                    "sequentialthinking",
-                    arguments={
-                        "thought": thought,
-                        "thoughtNumber": i,
-                        "totalThoughts": total,
-                        "nextThoughtNeeded": i < total,
-                    },
-                )
-                results.append(result.content[0].text if result.content else thought)
-            except Exception as exc:
-                logger.debug("sequential-thinking step %d failed: %s", i, exc)
-                results.append(thought)
-        return results
