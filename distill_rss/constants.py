@@ -39,5 +39,5 @@ SEQUENTIAL_THOUGHTS: Final[int] = 4
 
 # ── AI defaults ────────────────────────────────────────────────────────────────
 
-DEFAULT_GEMINI_MODEL: Final[str] = "gemini-2.0-flash"
+DEFAULT_GEMINI_MODEL: Final[str] = "gemini-3-flash-preview"
 """Fallback model name when GEMINI_MODEL env-var is not set."""

@@ -5,8 +5,8 @@ build/
 dist/
 wheels/
 *.egg-info
-
-
+history.json
+digests.json
 # Environment variables
 .env
 
