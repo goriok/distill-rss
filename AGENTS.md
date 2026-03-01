@@ -30,3 +30,11 @@ See `docs/MCP.md` for protocols and flow details.
 
 Gemini agent scores articles 0–10, summarizes in pt-br, and generates daily digests.
 Prompt logic lives in `distill_rss/ai.py`. MCP client protocols in `distill_rss/mcp_tools.py`.
+
+## Guardrails
+
+- **Never** delete or overwrite `history.json`, `digests.json`, or `rss_report.html` without
+  explicit user confirmation — these are the sole persistent data store.
+- **Never** `git push --force` or `git reset --hard` without confirmation.
+- **Never** install packages with `pip` — use `uv add` only.
+- Before any bulk edit that touches more than 3 files, state the plan and wait for approval.
