@@ -21,7 +21,7 @@ from mcp.client.stdio import stdio_client
 from rich.console import Console
 from rich.table import Table
 
-from distill_rss.ai import GeminiArticleAnalyzer, GeminiDigestGenerator
+from distill_rss.ai import GeminiArticleAnalyzer, GeminiDigestGenerator, deduplicate_articles
 from distill_rss.constants import DEFAULT_GEMINI_MODEL, MIN_ACCEPTED_SCORE
 from distill_rss.fetcher import FeedFetcher
 from distill_rss.mcp_tools import Context7Client
@@ -88,7 +88,7 @@ async def main() -> None:
     digest_repo = JsonDigestRepository()
     reporter = HTMLReportGenerator()
 
-    articles = FeedFetcher().fetch(config.feeds)
+    articles = deduplicate_articles(FeedFetcher().fetch(config.feeds))
     history = article_repo.load()
     digests = digest_repo.load()
 

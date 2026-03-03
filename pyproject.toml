@@ -10,8 +10,10 @@ dependencies = [
     "google-genai>=0.1.0",
     "mcp>=1.0.0",
     "python-dotenv>=1.2.1",
+    "rapidfuzz>=3.14.3",
     "requests>=2.32.5",
     "rich>=14.3.3",
+    "tenacity>=9.1.4",
 ]
 
 [dependency-groups]

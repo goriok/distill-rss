@@ -10,10 +10,14 @@ external services. Callers inject the real implementations at runtime.
 
 import json
 import logging
+import time
 from typing import Protocol
+
+from rapidfuzz import fuzz
 
 from google import genai
 from google.genai import types
+from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 from .constants import MAX_DIGEST_ARTICLES, SUMMARY_TRUNCATE
 from .mcp_tools import (
@@ -23,6 +27,61 @@ from .mcp_tools import (
 from .models import Article, Digest
 
 logger = logging.getLogger(__name__)
+
+
+def _is_retryable(exc: BaseException) -> bool:
+    """True for transient errors worth retrying (rate-limits, server errors)."""
+    for attr in ("code", "status_code"):
+        code = getattr(exc, attr, None)
+        if isinstance(code, int) and code in {429, 500, 502, 503, 504}:
+            return True
+    retryable_names = {
+        "ResourceExhausted",   # 429 rate limit
+        "ServiceUnavailable",  # 503
+        "InternalServerError", # 500
+        "DeadlineExceeded",    # timeout
+        "ServerError",         # google-genai ServerError base
+    }
+    return type(exc).__name__ in retryable_names
+
+
+# ── Deduplication ─────────────────────────────────────────────────────────────
+
+
+def deduplicate_articles(
+    articles: list["Article"], threshold: float = 85.0
+) -> list["Article"]:
+    """Remove near-duplicate articles before AI analysis.
+
+    Two-pass strategy:
+      1. Exact URL match (trailing slash stripped).
+      2. Title fuzzy similarity >= threshold (token_sort_ratio, handles word reordering).
+
+    The first occurrence is always kept; later duplicates are dropped.
+    """
+    seen_urls: set[str] = set()
+    unique: list["Article"] = []
+
+    for article in articles:
+        url = article.link.rstrip("/")
+        if url in seen_urls:
+            continue
+
+        is_dup = any(
+            fuzz.token_sort_ratio(article.title, kept.title) >= threshold
+            for kept in unique
+        )
+        if not is_dup:
+            seen_urls.add(url)
+            unique.append(article)
+
+    dropped = len(articles) - len(unique)
+    if dropped:
+        logger.info(
+            "dedup.removed",
+            extra={"dropped": dropped, "remaining": len(unique)},
+        )
+    return unique
 
 
 # ── Protocols ─────────────────────────────────────────────────────────────────
@@ -64,12 +123,20 @@ class GeminiArticleAnalyzer:
         )
 
     async def analyze(self, article: Article, keywords: list[str]) -> dict:
+        start = time.perf_counter()
+
         if not self._matches_keywords(article, keywords):
-            return {
+            elapsed_ms = round((time.perf_counter() - start) * 1000, 1)
+            result = {
                 "score": 0,
                 "reason": "Filtrado localmente (sem palavras-chave)",
                 "tags": [],
             }
+            logger.info(
+                "article.filtered",
+                extra={"title": article.title, "score": 0, "latency_ms": elapsed_ms},
+            )
+            return result
 
         library_context = await self._context_provider.get_context(
             f"{article.title} {article.summary}"
@@ -77,17 +144,41 @@ class GeminiArticleAnalyzer:
         prompt = self._build_analysis_prompt(article, keywords, library_context)
 
         try:
-            response = await self._client.aio.models.generate_content(
-                model=self._model,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json"
-                ),
-            )
-            return json.loads(response.text)
+            result = await self._call_gemini_analyze(prompt)
         except Exception as exc:
             logger.warning("Article analysis failed for '%s': %s", article.title, exc)
-            return {"score": 0, "reason": "Analysis failed", "tags": []}
+            result = {"score": 0, "reason": "Analysis failed", "tags": []}
+
+        elapsed_ms = round((time.perf_counter() - start) * 1000, 1)
+        logger.info(
+            "article.analyzed",
+            extra={"title": article.title, "score": result["score"], "latency_ms": elapsed_ms},
+        )
+        return result
+
+    @retry(
+        retry=retry_if_exception(_is_retryable),
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=30),
+        reraise=True,
+    )
+    async def _call_gemini_analyze(self, prompt: str) -> dict:
+        response = await self._client.aio.models.generate_content(
+            model=self._model,
+            contents=prompt,
+            config=types.GenerateContentConfig(response_mime_type="application/json"),
+        )
+        usage = getattr(response, "usage_metadata", None)
+        if usage:
+            logger.debug(
+                "gemini.tokens",
+                extra={
+                    "prompt_tokens": getattr(usage, "prompt_token_count", None),
+                    "output_tokens": getattr(usage, "candidates_token_count", None),
+                    "total_tokens": getattr(usage, "total_token_count", None),
+                },
+            )
+        return json.loads(response.text)
 
     @staticmethod
     def _build_analysis_prompt(
@@ -146,18 +237,43 @@ class GeminiDigestGenerator:
         ]
         prompt = self._build_digest_prompt(top)
 
+        start = time.perf_counter()
         try:
-            response = await self._client.aio.models.generate_content(
-                model=self._model,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json"
-                ),
-            )
-            return Digest.from_dict(json.loads(response.text))
+            result = await self._call_gemini_generate(prompt)
         except Exception as exc:
             logger.warning("Batch digest generation failed: %s", exc)
             return None
+
+        elapsed_ms = round((time.perf_counter() - start) * 1000, 1)
+        logger.info(
+            "digest.generated",
+            extra={"article_count": len(top), "latency_ms": elapsed_ms},
+        )
+        return result
+
+    @retry(
+        retry=retry_if_exception(_is_retryable),
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=30),
+        reraise=True,
+    )
+    async def _call_gemini_generate(self, prompt: str) -> Digest:
+        response = await self._client.aio.models.generate_content(
+            model=self._model,
+            contents=prompt,
+            config=types.GenerateContentConfig(response_mime_type="application/json"),
+        )
+        usage = getattr(response, "usage_metadata", None)
+        if usage:
+            logger.debug(
+                "gemini.tokens",
+                extra={
+                    "prompt_tokens": getattr(usage, "prompt_token_count", None),
+                    "output_tokens": getattr(usage, "candidates_token_count", None),
+                    "total_tokens": getattr(usage, "total_token_count", None),
+                },
+            )
+        return Digest.from_dict(json.loads(response.text))
 
     @staticmethod
     def _build_digest_prompt(top: list[Article]) -> str:
